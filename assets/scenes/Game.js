@@ -5,7 +5,6 @@ import {
   TRIANGULO,
   CUADRADO,
   ROMBO,
-  CRUZ,
   POINTS_PERCENTAGE,
   POINTS_PERCENTAGE_VALUE_START,
 } from "../scenes/util.js";
@@ -19,15 +18,11 @@ export default class Game extends Phaser.Scene {
       ["Triangulo"]: { count: 0, score: 10 },
       ["Cuadrado"]: { count: 0, score: 20 },
       ["Rombo"]: { count: 0, score: 30 },
-      ["Cruz"]:{count:0, score: -10},
     };
     this.isWinner = false;
     this.isGameOver = false;
     this.timer = 30;
     this.score= 0;
-    
-    
-    
   }
 
   preload() {
@@ -37,7 +32,6 @@ export default class Game extends Phaser.Scene {
     this.load.image(TRIANGULO, "./assets/images/Triangulo.png");
     this.load.image(CUADRADO, "./assets/images/Cuadrado.png");
     this.load.image(ROMBO, "./assets/images/Rombo.png");
-    this.load.image(CRUZ,"./assets/images/Cruz.png");
     this.load.image("Pausa","./assets/images/Pausa.png");
 
     
@@ -92,7 +86,7 @@ export default class Game extends Phaser.Scene {
       callbackScope: this,
       loop: true,
     });
-    this.scoreText = this.add.text(16, 16, "CR:0/T:0/C:0/R:0", {
+    this.scoreText = this.add.text(16, 16, "/Triang:0/Cuad:0/Rombo:0", {
       fontSize: "25px",
     });
     
@@ -162,15 +156,11 @@ export default class Game extends Phaser.Scene {
     console.log(this.shapesRecolected);
     this.shapesRecolected[shapeName].count++;
     this.scoreText.setText(
-    
-      
-      "CR:"+
-      this.shapesRecolected[CRUZ].count +
-      "/T:" +
+      "/Triang:" +
         this.shapesRecolected[TRIANGULO].count +
-        "/C:" +
+        "/Cuad:" +
         this.shapesRecolected[CUADRADO].count +
-        "/R:" +
+        "/Rombo:" +
         this.shapesRecolected[ROMBO].count
     );
     

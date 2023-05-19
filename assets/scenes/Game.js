@@ -1,166 +1,235 @@
-import { SHAPES,  POINTS_PERCENTAGE, POINTS_PERCENTAGE_VALUE_START   } from "../../utils.js";
-
-const { TRIANGLE, SQUARE, DIAMOND, CIRCLE } = SHAPES;
+import {
+  PLAYER_MOVEMENTS,
+  SHAPE_DELAY,
+  SHAPES,
+  TRIANGULO,
+  CUADRADO,
+  ROMBO,
+  CRUZ,
+  POINTS_PERCENTAGE,
+  POINTS_PERCENTAGE_VALUE_START,
+} from "../scenes/util.js";
 export default class Game extends Phaser.Scene {
-  score;
-  gameOver;
-  timer;
   constructor() {
     super("Game");
   }
+
   init() {
-    this.gameOver = false;
-    this.timer = 20;
     this.shapesRecolected = {
-      [TRIANGLE]: { count: 0, score: 10 },
-      [SQUARE]: { count: 0, score: 20 },
-      [DIAMOND]: { count: 0, score: 30 },
-      [CIRCLE]: { count: 0, score: -10 },
+      ["Triangulo"]: { count: 0, score: 10 },
+      ["Cuadrado"]: { count: 0, score: 20 },
+      ["Rombo"]: { count: 0, score: 30 },
+      ["Cruz"]:{count:0, score: -10},
     };
-    console.log(this.shapesRecolected);
+    this.isWinner = false;
+    this.isGameOver = false;
+    this.timer = 30;
+    this.score= 0;
+    
+    
+    
+  }
+
+  preload() {
+    this.load.image("sky", "./assets/images/Cielo.jpg");
+    this.load.image("platform", "./assets/images/platform.png");
+    this.load.image("Ninja", "./assets/images/Ninja.png");
+    this.load.image(TRIANGULO, "./assets/images/Triangulo.png");
+    this.load.image(CUADRADO, "./assets/images/Cuadrado.png");
+    this.load.image(ROMBO, "./assets/images/Rombo.png");
+    this.load.image(CRUZ,"./assets/images/Cruz.png");
+    this.load.image("Pausa","./assets/images/Pausa.png");
+
+    
+    
   }
 
   create() {
-    // create game objects
+    const pauseButton = this.add.image(390, 30, "Pausa").setScale(0.1);
+    pauseButton.setInteractive();
+    pauseButton.on("pointerup", () => {
+        this.scene.pause();
+      });
+
     this.add.image(400, 300, "sky").setScale(0.555);
 
-    let platforms = this.physics.add.staticGroup();
-    //ground
-    platforms.create(400, 568, "ground").setScale(2).refreshBody();
-    //left ground
-    platforms.create(210, 385, "shortPl").refreshBody();
-    //right ground
-    platforms.create(590, 385, "shortPl").refreshBody();
+    this.player = this.physics.add.sprite(340, 400, "Ninja");
 
-    this.player = this.physics.add.sprite(100, 450, "Ninja");
-    this.player.setCollideWorldBounds(true);
+    this.platformasPropias = this.physics.add.staticGroup();
+    this.platformasPropias
+      .create(400, 568, "platform")
+      .setScale(2)
+      .refreshBody();
+      this.platformasPropias
+      .create(600, 400, "platform")
+      .setScale(1)
+      .refreshBody();
+      
 
-    this.shapesGroup = this.physics.add.group();
+    this.physics.add.collider(this.player, this.platformasPropias);
+    this.shapeGroup = this.physics.add.group();
 
-    this.time.addEvent({
-      delay: 3000,
-      callback: this.addShape,
-      callbackScope: this,
-      loop: true,
-    });
-
-    this.time.addEvent({
-      delay: 500,
-      callback: this.oneSecond,
-      callbackScope: this,
-      loop: true,
-    });
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-
-    this.physics.add.collider(this.player, platforms);
-    this.physics.add.collider(this.player, this.shapesGroup);
-    this.physics.add.collider(platforms, this.shapesGroup);
-
+    this.physics.add.collider(this.platformasPropias, this.shapeGroup);
     this.physics.add.overlap(
       this.player,
-      this.shapesGroup,
+      this.shapeGroup,
       this.collectShape,
       null,
       this
     );
+    
+   
+      
+    
+    
+    
+    
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.time.addEvent({
+      delay: SHAPE_DELAY,
+      callback: this.addShape,
+      callbackScope: this,
+      loop: true,
+    });
+    this.scoreText = this.add.text(16, 16, "CR:0/T:0/C:0/R:0", {
+      fontSize: "25px",
+    });
+    
+    
+    this.time.addEvent({
+      delay: 1000,
+      callback: this.timmer,
+      callbackScope: this,
+      loop: true,
+    });
+   
+    this.timeText = this.add.text(600, 16, "Tiempo " + this.timer, {
+      fontSize: "30px",
+    });
+    this.scoreTotal=this.add.text(15,60,"ScoreTotal"+this.score,{
+      fontSize:"20px",
+    })
+    this.physics.add.collider(this.platformasPropias,this.shapeGroup)
     this.physics.add.overlap(
-      this.shapesGroup,
-      platforms,
+      this.platformasPropias,
+      this.shapeGroup,
       this.reduce,
       null,
       this
-    );
-
-    this.score = 0;
-    this.scoreText = this.add.text(20, 20, "Score:" + this.score, {
-      fontSize: "32px",
-      fontStyle: "bold",
-      fill: "#FFFFFF",
-    });
-    this.timer = 90;
-    this.timerText = this.add.text(750, 20, this.timer, {
-      fontSize: "32px",
-      fontStyle: "bold",
-      fill: "#FFFFFF",
-    });
-  }
+    )
+    
+    
+    }
 
   update() {
-    if (this.score > 150) {
-      this.scene.start("win2");
+    if (this.isWinner) {
+      this.scene.start("Winner");
     }
-    if (this.gameOver) {
-      this.scene.start("gameOver");
+    if (this.isGameOver) {
+      this.scene.start("GameOver");
     }
-    if (this.score < 0) {
-      this.scene.start("gameOver");
-    }
-
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-300);
+      this.player.setVelocityX(-PLAYER_MOVEMENTS.x);
+    } else if (this.cursors.right.isDown) {
+      this.player.setVelocityX(PLAYER_MOVEMENTS.x);
     } else {
-      if (this.cursors.right.isDown) {
-        this.player.setVelocityX(300);
-      } else {
-        this.player.setVelocityX(0);
-      }
+      this.player.setVelocityX(0);
     }
-
     if (this.cursors.up.isDown && this.player.body.touching.down) {
-      this.player.setVelocityY(-300);
+      this.player.setVelocityY(-PLAYER_MOVEMENTS.y);
     }
+    if (this.scene.isPaused()) {
+      // Detener el movimiento y la interacción de los objetos del juego
+      // Ejemplo:
+      this.player.setVelocityX(0);
+      this.player.setVelocityY(0);
+      this.shapeGroup.setVelocityX(0);
+      this.shapeGroup.setVelocityY(0);
+      this.shapeGroup.setAll("interactive", false);
+  } else {
+      // Actualizar el juego normalmente
+      // ...
   }
-  addShape() {
-    const randomShape = Phaser.Math.RND.pick([ DIAMOND, SQUARE, TRIANGLE, CIRCLE,]);
-
-    const randomX = Phaser.Math.RND.between(0, 800);
-
-    this.shapesGroup.create(randomX, 0, randomShape)
-      //.create(randomX, 0, randomShape)
-      //.setCircle(25, 7, 7)
-      //.setBounce(1, 1);
-      .setCircle(32, 0, 0)
-      .setBounce(0.8)
-      .setData(POINTS_PERCENTAGE, POINTS_PERCENTAGE_VALUE_START);
-
-    console.log("shape is added", randomX, randomShape);
   }
-  collectShape(player, shape) {
-    shape.disableBody(true, true);
-
-    const shapeName = shape.texture.key;
-    const percentage = shape.getData(POINTS_PERCENTAGE);
+  collectShape(player, shapeGroup) {
+    console.log("figura recolectada");
+    shapeGroup.disableBody(true, true);
+    const shapeName = shapeGroup.texture.key;
+    const percentage = shapeGroup.getData(POINTS_PERCENTAGE);
     const scoreNow = this.shapesRecolected[shapeName].score * percentage;
-    this.score += scoreNow;
+    this.score= this.score + scoreNow
+    console.log(this.shapesRecolected);
+    this.shapesRecolected[shapeName].count++;
+    this.scoreText.setText(
+    
+      
+      "CR:"+
+      this.shapesRecolected[CRUZ].count +
+      "/T:" +
+        this.shapesRecolected[TRIANGULO].count +
+        "/C:" +
+        this.shapesRecolected[CUADRADO].count +
+        "/R:" +
+        this.shapesRecolected[ROMBO].count
+    );
+    
+    this.scoreTotal.setText(
+      "ScoreTotal:"+
+      this.score
+    )
+    if (
+      this.shapesRecolected[TRIANGULO].count >= 2 &&
+      this.shapesRecolected[CUADRADO].count >= 2 &&
+      this.shapesRecolected[ROMBO].count >= 2
+    ) {
+      this.isWinner = true;
+      
+     
+    }
+    if(
+      this.score>=100
 
+      
+    ){
+      this.isWinner= true;
+    }
+    
     
 
-   // this.score += this.shapesRecolected[shapeName].score;
-   // console.log(this.shapesRecolected[shapeName].score);
-    this.scoreText.setText(`Score: ${this.score.toString()}`);
-
-    //console.log(this.shapesRecolected);
-    this.shapesRecolected[shapeName].count++;
-
+    
+    }
+    
+  
+  addShape() {
+    const randomShape = Phaser.Math.RND.pick(SHAPES);
+    const randomX = Phaser.Math.RND.between(0, 800);
+    this.shapeGroup.create(randomX, 0, randomShape)
+    .setCircle(32,0,0)
+    .setBounce(0.8)
+    .setData(POINTS_PERCENTAGE, POINTS_PERCENTAGE_VALUE_START);
+    
+    console.log("shape is added", randomX, randomShape);
   }
-  oneSecond() {
+  timmer() {
     this.timer--;
-    this.timerText.setText(this.timer);
-    if (this.timer <= 0) {
-      this.gameOver = true;
+    console.log(this.timer);
+    this.timeText.setText("Tiempo " + this.timer);
+    if(this.timer==0){
+      this.isGameOver= true;
     }
   }
-  reduce(shape, platform) {
-    const newPercentage = shape.getData(POINTS_PERCENTAGE) - 0.25;
-    console.log(shape.texture.key, newPercentage);
-    shape.setData(POINTS_PERCENTAGE, newPercentage);
+  reduce(platformasPropias,shapeGroup){
+    const newPercentage = shapeGroup.getData(POINTS_PERCENTAGE) - 0.25;
+    console.log(shapeGroup.texture.key, newPercentage);
+    shapeGroup.setData(POINTS_PERCENTAGE, newPercentage);
     if (newPercentage <= 0) {
-      shape.disableBody(true, true);
+      shapeGroup.disableBody(true, true);
       return;
+      
+      
     }
-
-    const text = this.add.text(shape.body.position.x+10, shape.body.position.y, "- 25%", {
+    const text = this.add.text(shapeGroup.body.position.x+10, shapeGroup.body.position.y, "- 25%", {
       fontSize: "22px",
       fontStyle: "bold",
       fill: "red",
@@ -168,7 +237,5 @@ export default class Game extends Phaser.Scene {
     setTimeout(() => {
       text.destroy();
     }, 200);
-
-
-  }
+  } 
 }

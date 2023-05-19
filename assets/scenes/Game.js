@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
     };
     this.isWinner = false;
     this.isGameOver = false;
-    this.timer = 30;
+    this.timer = 90;
     this.score= 0;
   }
 
@@ -32,19 +32,10 @@ export default class Game extends Phaser.Scene {
     this.load.image(TRIANGULO, "./assets/images/Triangulo.png");
     this.load.image(CUADRADO, "./assets/images/Cuadrado.png");
     this.load.image(ROMBO, "./assets/images/Rombo.png");
-    this.load.image("Pausa","./assets/images/Pausa.png");
 
-    
-    
   }
 
   create() {
-    const pauseButton = this.add.image(390, 30, "Pausa").setScale(0.1);
-    pauseButton.setInteractive();
-    pauseButton.on("pointerup", () => {
-        this.scene.pause();
-      });
-
     this.add.image(400, 300, "sky").setScale(0.555);
 
     this.player = this.physics.add.sprite(340, 400, "Ninja");
@@ -54,8 +45,14 @@ export default class Game extends Phaser.Scene {
       .create(400, 568, "platform")
       .setScale(2)
       .refreshBody();
+      //right plat
       this.platformasPropias
-      .create(600, 400, "platform")
+      .create(770, 400, "platform")
+      .setScale(1)
+      .refreshBody();
+      //left plat
+      this.platformasPropias
+      .create(0, 400, "platform")
       .setScale(1)
       .refreshBody();
       
@@ -101,7 +98,7 @@ export default class Game extends Phaser.Scene {
     this.timeText = this.add.text(600, 16, "Tiempo " + this.timer, {
       fontSize: "30px",
     });
-    this.scoreTotal=this.add.text(15,60,"ScoreTotal"+this.score,{
+    this.scoreTotal=this.add.text(15,60,"Score: "+this.score,{
       fontSize:"20px",
     })
     this.physics.add.collider(this.platformasPropias,this.shapeGroup)
@@ -133,18 +130,6 @@ export default class Game extends Phaser.Scene {
     if (this.cursors.up.isDown && this.player.body.touching.down) {
       this.player.setVelocityY(-PLAYER_MOVEMENTS.y);
     }
-    if (this.scene.isPaused()) {
-      // Detener el movimiento y la interacción de los objetos del juego
-      // Ejemplo:
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(0);
-      this.shapeGroup.setVelocityX(0);
-      this.shapeGroup.setVelocityY(0);
-      this.shapeGroup.setAll("interactive", false);
-  } else {
-      // Actualizar el juego normalmente
-      // ...
-  }
   }
   collectShape(player, shapeGroup) {
     console.log("figura recolectada");
@@ -165,7 +150,7 @@ export default class Game extends Phaser.Scene {
     );
     
     this.scoreTotal.setText(
-      "ScoreTotal:"+
+      "Score: "+
       this.score
     )
     if (
@@ -178,7 +163,7 @@ export default class Game extends Phaser.Scene {
      
     }
     if(
-      this.score>=100
+      this.score>=150
 
       
     ){

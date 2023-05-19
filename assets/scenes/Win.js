@@ -4,9 +4,8 @@ export default class win extends Phaser.Scene {
     }
     create() {
       this.add
-        .image(400, 300, "win2")
+        .image(400, 300, "win2").setScale(1.2)
         .setInteractive()
         .on("pointerdown", () => this.scene.start("Game"));
     }
   }
-  

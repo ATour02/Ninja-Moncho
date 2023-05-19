@@ -14,7 +14,7 @@ export default class Winner extends Phaser.Scene {
       fontSize: "30px",
       fill: "#37EAE0",
     });
-    this.add.image(430, 250, "win").setScale(0.555);
+    this.add.image(430, 300, "win").setScale(1.2);
   }
 
   update() {}

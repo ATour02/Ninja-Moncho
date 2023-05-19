@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
     };
     this.isWinner = false;
     this.isGameOver = false;
-    this.timer = 90;
+    this.timer = 5;
     this.score= 0;
   }
 

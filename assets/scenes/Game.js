@@ -78,7 +78,7 @@ export default class Game extends Phaser.Scene {
       fontStyle: "bold",
       fill: "#FFFFFF",
     });
-    this.timer = 80;
+    this.timer = 90;
     this.timerText = this.add.text(750, 20, this.timer, {
       fontSize: "32px",
       fontStyle: "bold",
@@ -91,6 +91,9 @@ export default class Game extends Phaser.Scene {
       this.scene.start("win2");
     }
     if (this.gameOver) {
+      this.scene.start("gameOver");
+    }
+    if (this.score < 0) {
       this.scene.start("gameOver");
     }
 

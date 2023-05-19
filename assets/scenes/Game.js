@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
     };
     this.isWinner = false;
     this.isGameOver = false;
-    this.timer = 5;
+    this.timer = 60;
     this.score= 0;
   }
 
@@ -83,7 +83,7 @@ export default class Game extends Phaser.Scene {
       callbackScope: this,
       loop: true,
     });
-    this.scoreText = this.add.text(16, 16, "/Triang:0/Cuad:0/Rombo:0", {
+    this.scoreText = this.add.text(16, 16, "Triangulo:0 -- Cuadrado:0 -- Rombo:0", {
       fontSize: "25px",
     });
     
@@ -141,11 +141,11 @@ export default class Game extends Phaser.Scene {
     console.log(this.shapesRecolected);
     this.shapesRecolected[shapeName].count++;
     this.scoreText.setText(
-      "/Triang:" +
+      "Triangulo:" +
         this.shapesRecolected[TRIANGULO].count +
-        "/Cuad:" +
+        " -- Cuadrado:" +
         this.shapesRecolected[CUADRADO].count +
-        "/Rombo:" +
+        " -- Rombo:" +
         this.shapesRecolected[ROMBO].count
     );
     

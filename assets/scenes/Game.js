@@ -28,9 +28,9 @@ export default class Game extends Phaser.Scene {
     //ground
     platforms.create(400, 568, "ground").setScale(2).refreshBody();
     //left ground
-    platforms.create(300, 400, "ground").setScale(1).refreshBody();
+    platforms.create(210, 385, "shortPl").refreshBody();
     //right ground
-    platforms.create(850, 350, "ground").setScale(1).refreshBody();
+    platforms.create(590, 385, "shortPl").refreshBody();
 
     this.player = this.physics.add.sprite(100, 450, "Ninja");
     this.player.setCollideWorldBounds(true);

@@ -1,4 +1,4 @@
-import GameOver from "./assets/scenes/GameOver.js";
+import GameOver from "./assets/scenes/gameOver.js";
 import Game from "./assets/scenes/Game.js";
 import Winner from "./assets/scenes/Winner.js";
 import MenúPrincipal from "./assets/scenes/MenúPrincipal.js";
